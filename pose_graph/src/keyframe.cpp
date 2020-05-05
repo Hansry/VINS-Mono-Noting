@@ -544,7 +544,9 @@ bool KeyFrame::findConnection(KeyFrame* old_kf)
 	    	             relative_q.w(), relative_q.x(), relative_q.y(), relative_q.z(),
 	    	             relative_yaw;
 
-	    	//快速重定位,当检测到回环约束时，直接将回环检测的约束返回给vins_estimator进行快速的重定位（hansry）
+	    	//快速重定位,当检测到回环约束时，直接将回环检测的约束返回给vins_estimator进行快速的重定位。主要为将闭环帧的匹配特征点放到滑动窗口中，得到闭环帧基于w2坐标系下的位姿，
+			//通过由于找到闭环帧的当前关键帧也是基于w2下的，这样很容易得到闭环帧和当前关键帧相对位姿，然后通过pubRelocalization进行发布，由updateKeyFrameLoop对相对位姿进行处理，得到Tw1->w2，
+			//并在PoseGraph::addKeyFrame()函数中将当前关键帧插入到framelist之前用Tw1->w2进行偏移量的纠正。
 	    	if(FAST_RELOCALIZATION)
 	    	{
 				//msg_match_points是发送给estimator的匹配信息

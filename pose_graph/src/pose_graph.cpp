@@ -961,8 +961,9 @@ void PoseGraph::publish()
     //posegraph_visualization->publish_by(pub_pose_graph, path[sequence_cnt].header);
 }
 
-//更新关键帧的回环信息。当启动快速重定位的时候，滑动窗口的当前帧（基于世界系w2）会从关键帧数据库中检测得到闭环帧(基于世界系w1，位姿为Pw1_close),对当前帧和闭环帧进行特征点匹配，并根据特征点在滑动窗口中
-//求得闭环帧基于世界系w2的位姿(Pw2_pose),因此可以求得世界系w1和世界系w2的相对变换，得到Tw1->w2。
+//1.更新关键帧的回环信息。当启动快速重定位的时候，滑动窗口的当前帧（基于世界系w2）会从关键帧数据库中检测得到闭环帧(基于世界系w1，位姿为Pw1_close),对当前帧和闭环帧进行特征点匹配，并根据特征点在滑动窗口中
+//  求得闭环帧基于世界系w2的位姿(Pw2_pose),因此可以求得世界系w1和世界系w2的相对变换，得到T{w1->w2}。
+//2.调整当前关键帧的位姿态。在得到Tw1->w2之后，在将当前帧插入到keyframelist之前，会调用T{w1->Tw2}*T{w2->w1}将当前关键帧的从w2坐标系变换到w1坐标系中，进而完成快速重定位。
 void PoseGraph::updateKeyFrameLoop(int index, Eigen::Matrix<double, 8, 1 > &_loop_info)
 {
     KeyFrame* kf = getKeyFrame(index);
